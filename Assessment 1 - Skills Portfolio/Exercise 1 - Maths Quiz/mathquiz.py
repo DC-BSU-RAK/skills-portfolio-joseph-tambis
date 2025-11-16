@@ -5,7 +5,7 @@ import random
 
 def displayMenu():
     clear_window()
-    tk.Label(root, text="💫 ARITHMETIC CHALLENGE 💫", font=("Orbitron", 24, "bold"),
+    tk.Label(root, text="💫 RETRO MATH QUIZ 💫", font=("Orbitron", 24, "bold"),
              bg="#1B0034", fg="#00FFFF").pack(pady=40)
     
     tk.Label(root, text="SELECT DIFFICULTY", font=("Arial", 14, "bold"),
@@ -149,9 +149,10 @@ def start_quiz(difficulty):
 # GUI Setup
 
 root = tk.Tk()
-root.title("Neon Arcade Arithmetic Quiz")
+root.title("Retro Math Quiz")
 root.geometry("650x550")
 root.config(bg="#1B0034")
 
 displayMenu()
+
 root.mainloop()
