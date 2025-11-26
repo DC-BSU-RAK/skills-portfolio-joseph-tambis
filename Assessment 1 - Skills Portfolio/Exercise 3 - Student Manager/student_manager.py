@@ -9,7 +9,6 @@ FILE = "studentMarks.txt"
 def load_data():
     students = []
     if not os.path.exists(FILE):
-        # Custom messagebox with icon
         show_custom_message("File missing", f"'{FILE}' not found.", "error")
         return students
     with open(FILE, "r", encoding="utf-8") as f:
@@ -58,18 +57,25 @@ def calc_grade(p):
     if p >= 40: return "D"
     return "F"
 
-def format_student(s, header=""):
+def format_student_minimal(s, show_header=False):
+    """Minimal modern formatting"""
     lines = []
-    if header:
-        lines.append(header)
-    lines.append(f"Name: {s['name']}")
-    lines.append(f"Student Number: {s['code']}")
-    lines.append(f"Coursework Marks: {s['c1']}, {s['c2']}, {s['c3']}  (Total: {s['coursework']}/60)")
-    lines.append(f"Exam Mark: {s['exam']}/100")
-    lines.append(f"Overall Percentage: {s['percentage']:.2f}%")
-    lines.append(f"Grade: {s['grade']}")
-    lines.append("-" * 48)
-    return "\n".join(lines) + "\n"
+    
+    lines.append(f"🎓 {s['name']}")
+    lines.append(f"🔢 Student ID: {s['code']}")
+    lines.append("")
+    lines.append(f"📊 Coursework: {s['c1']} • {s['c2']} • {s['c3']} → {s['coursework']}/60")
+    lines.append(f"📝 Exam: {s['exam']}/100")
+    lines.append("")
+    lines.append(f"📈 Overall: {s['percentage']:.2f}%")
+    lines.append(f"🏆 Grade: [{s['grade']}]")
+    lines.append("")
+    lines.append("─" * 50)
+    
+    return "\n".join(lines)
+
+# Use the minimal format as default
+format_student = format_student_minimal
 
 # ---------- Custom dialog functions with icons ----------
 def show_custom_message(title, message, msg_type="info"):
@@ -137,9 +143,9 @@ def ask_custom_yesno(title, question):
     btn_frame.pack(pady=10)
     
     tk.Button(btn_frame, text="Yes", command=lambda: set_result(True),
-              bg="#4CAF50", fg="white", font=("Segoe UI", 10), width=8).pack(side="left", padx=10)
+              bg="#007acc", fg="white", font=("Segoe UI", 10), width=8).pack(side="left", padx=10)
     tk.Button(btn_frame, text="No", command=lambda: set_result(False),
-              bg="#f44336", fg="white", font=("Segoe UI", 10), width=8).pack(side="left", padx=10)
+              bg="#666", fg="white", font=("Segoe UI", 10), width=8).pack(side="left", padx=10)
     
     root.wait_window(dialog)
     return result["value"]
@@ -277,8 +283,8 @@ def view_all():
         out.append(format_student(s))
         total_pct += s["percentage"]
     avg = total_pct / len(students)
-    out.append(f"\nTotal students: {len(students)}")
-    out.append(f"Class Average Percentage: {avg:.2f}%")
+    out.append(f"\n📊 Total students: {len(students)}")
+    out.append(f"📈 Class Average: {avg:.2f}%")
     set_output("\n".join(out))
 
 def view_individual():
@@ -286,13 +292,13 @@ def view_individual():
     if not students:
         set_output("No student records found.")
         return
-    key = custom_askstring("Find student", "Enter student number or name (partial ok):")
+    key = custom_askstring("Find student", "Enter student number or name:")
     if not key:
         return
     keyl = key.strip().lower()
     for s in students:
         if keyl == s["code"].lower() or keyl in s["name"].lower():
-            set_output(format_student(s, header="Student Record:"))
+            set_output(format_student(s, show_header=True))
             return
     show_custom_message("Not found", "No matching student found.")
 
@@ -302,7 +308,7 @@ def highest_score():
         set_output("No student records found.")
         return
     best = max(students, key=lambda x: x["percentage"])
-    set_output(format_student(best, header="Highest Scoring Student:"))
+    set_output(format_student(best, show_header=True))
 
 def lowest_score():
     students = load_data()
@@ -310,7 +316,7 @@ def lowest_score():
         set_output("No student records found.")
         return
     worst = min(students, key=lambda x: x["percentage"])
-    set_output(format_student(worst, header="Lowest Scoring Student:"))
+    set_output(format_student(worst, show_header=True))
 
 def sort_records():
     students = load_data()
@@ -514,12 +520,13 @@ title_lbl.pack(anchor="w", padx=20)
 subtitle = tk.Label(header, text="Manage coursework and exam scores", bg=content_bg, fg="#555")
 subtitle.pack(anchor="w", padx=20)
 
-# Output area
-out_frame = tk.Frame(content, bg="#ffffff", bd=1, relief="solid")
+# Output area with modern styling
+out_frame = tk.Frame(content, bg="#ffffff", bd=1, relief="solid", highlightbackground="#e0e0e0", highlightthickness=1)
 out_frame.pack(fill="both", expand=True, padx=20, pady=(0,20))
-output_text = tk.Text(out_frame, font=text_font, wrap="word", state="disabled", bd=0, padx=10, pady=10)
+output_text = tk.Text(out_frame, font=text_font, wrap="word", state="disabled", bd=0, padx=15, pady=15, 
+                     bg="#fafafa", fg="#333333", selectbackground="#e3f2fd")
 output_text.pack(side="left", fill="both", expand=True)
-scroll = tk.Scrollbar(out_frame, command=output_text.yview)
+scroll = tk.Scrollbar(out_frame, command=output_text.yview, bg="#e0e0e0", troughcolor="#f5f5f5")
 scroll.pack(side="right", fill="y")
 output_text.config(yscrollcommand=scroll.set)
 
@@ -563,9 +570,14 @@ make_sidebar_button(sidebar, "Update Student", update_student)
 
 # ---------- Welcome text ----------
 set_output(
-    "Welcome to Student Manager!\n\n"
-    "Use the left menu to select an option.\n"
-    "All output will appear here.\n"
+    "🎓 Welcome to Student Manager!\n\n"
+    "✨ Use the left menu to select an option.\n"
+    "📊 All student records will appear here.\n\n"
+    "💡 Features:\n"
+    "   • View all students or individual records\n"
+    "   • Find highest and lowest scores\n" 
+    "   • Sort records by percentage\n"
+    "   • Add, update, or delete students\n"
 )
 
 root.mainloop()
